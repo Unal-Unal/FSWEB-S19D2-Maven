@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
     @Entity
-    @Table(name = "customer", schema = "fsweb")
+    @Table(name = "customer", schema = "public")
     @Data
     @NoArgsConstructor
     @AllArgsConstructor

@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
     @Entity
-    @Table(name = "account", schema = "fsweb")
+    @Table(name = "account", schema = "public")
     @Data
     @NoArgsConstructor
     @AllArgsConstructor

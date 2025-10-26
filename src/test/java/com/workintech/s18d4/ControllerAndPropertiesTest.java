@@ -115,42 +115,46 @@ class ControllerAndPropertiesTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].id", is((Long) sampleAccountForAccountControllerTest.getId())))
+                .andExpect(jsonPath("$[0].id", is(sampleAccountForAccountControllerTest.getId().intValue()))) // burası değişti
                 .andExpect(jsonPath("$[0].accountName", is(sampleAccountForAccountControllerTest.getAccountName())));
 
         verify(accountService).findAll();
     }
-
     @Test
     @DisplayName("AccountController::find")
     void testFindAccount() throws Exception {
-        when(accountService.find(sampleAccountForAccountControllerTest.getId())).thenReturn(sampleAccountForAccountControllerTest);
+        when(accountService.find(sampleAccountForAccountControllerTest.getId()))
+                .thenReturn(sampleAccountForAccountControllerTest);
 
         mockMvc.perform(get("/account/{id}", sampleAccountForAccountControllerTest.getId()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id", is((Long) sampleAccountForAccountControllerTest.getId())))
+                .andExpect(jsonPath("$.id", is(sampleAccountForAccountControllerTest.getId().intValue()))) // değişti
                 .andExpect(jsonPath("$.accountName", is(sampleAccountForAccountControllerTest.getAccountName())));
 
         verify(accountService).find(sampleAccountForAccountControllerTest.getId());
     }
 
+
     @Test
     @DisplayName("AccountController::save")
     void testSaveAccount() throws Exception {
-        when(customerService.find(sampleCustomerForAccountControllerTest.getId())).thenReturn(sampleCustomerForAccountControllerTest);
-        when(accountService.save(any())).thenReturn(sampleAccountForAccountControllerTest);
+        when(customerService.find(sampleCustomerForAccountControllerTest.getId()))
+                .thenReturn(sampleCustomerForAccountControllerTest);
+        when(accountService.save(any()))
+                .thenReturn(sampleAccountForAccountControllerTest);
 
         mockMvc.perform(post("/account/{customerId}", sampleCustomerForAccountControllerTest.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(sampleAccountForAccountControllerTest)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is((Long) sampleAccountForAccountControllerTest.getId())))
+                .andExpect(jsonPath("$.id", is(sampleAccountForAccountControllerTest.getId().intValue()))) // değişti
                 .andExpect(jsonPath("$.accountName", is(sampleAccountForAccountControllerTest.getAccountName())));
 
         verify(customerService).find(sampleCustomerForAccountControllerTest.getId());
         verify(accountService).save(any());
     }
+
 
     @Test
     @DisplayName("AccountController::update")
@@ -162,37 +166,40 @@ class ControllerAndPropertiesTest {
         updatedAccount.setMoneyAmount(2000.00);
         updatedAccount.setCustomer(sampleCustomerForAccountControllerTest);
 
-        // Ensure the customer is associated with the account to be updated
         List<Account> accounts = new ArrayList<>();
         accounts.add(sampleAccountForAccountControllerTest);
         sampleCustomerForAccountControllerTest.setAccounts(accounts);
 
         when(customerService.find(customerId)).thenReturn(sampleCustomerForAccountControllerTest);
-        when(accountService.find(sampleAccountForAccountControllerTest.getId())).thenReturn(sampleAccountForAccountControllerTest);
+        when(accountService.find(sampleAccountForAccountControllerTest.getId()))
+                .thenReturn(sampleAccountForAccountControllerTest);
         when(accountService.save(any())).thenReturn(updatedAccount);
 
         mockMvc.perform(put("/account/{customerId}", customerId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updatedAccount)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is((Long) updatedAccount.getId())))
+                .andExpect(jsonPath("$.id", is(updatedAccount.getId().intValue())))
                 .andExpect(jsonPath("$.accountName", is(updatedAccount.getAccountName())))
-                .andExpect(jsonPath("$.moneyAmount", is(updatedAccount.getMoneyAmount())));
+                .andExpect(jsonPath("$.moneyAmount", is(updatedAccount.getMoneyAmount().doubleValue())));
 
         verify(customerService).find(customerId);
         given(customerService.save(any())).willReturn(sampleCustomerForAccountControllerTest);
     }
 
 
+
     @Test
     @DisplayName("AccountController::remove")
     void testRemoveAccount() throws Exception {
-        when(accountService.find(sampleAccountForAccountControllerTest.getId())).thenReturn(sampleAccountForAccountControllerTest);
-        when(accountService.delete(sampleAccountForAccountControllerTest.getId())).thenReturn(sampleAccountForAccountControllerTest);
+        when(accountService.find(sampleAccountForAccountControllerTest.getId()))
+                .thenReturn(sampleAccountForAccountControllerTest);
+        when(accountService.delete(sampleAccountForAccountControllerTest.getId()))
+                .thenReturn(sampleAccountForAccountControllerTest);
 
         mockMvc.perform(delete("/account/{id}", sampleAccountForAccountControllerTest.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is((Long) sampleAccountForAccountControllerTest.getId())))
+                .andExpect(jsonPath("$.id", is(sampleAccountForAccountControllerTest.getId().intValue())))
                 .andExpect(jsonPath("$.accountName", is(sampleAccountForAccountControllerTest.getAccountName())))
                 .andExpect(jsonPath("$.moneyAmount", is(sampleAccountForAccountControllerTest.getMoneyAmount())));
 
@@ -200,21 +207,28 @@ class ControllerAndPropertiesTest {
         verify(accountService).delete(sampleAccountForAccountControllerTest.getId());
     }
 
+
     @Test
     @DisplayName("CustomerController::saveCustomer")
     void testSaveCustomer() throws Exception {
         given(customerService.save(any())).willReturn(sampleCustomerForCustomerControllerTest);
 
-        CustomerResponse expectedResponse = new CustomerResponse(sampleCustomerForCustomerControllerTest.getId(), sampleCustomerForCustomerControllerTest.getEmail(), sampleCustomerForCustomerControllerTest.getSalary());
+        CustomerResponse expectedResponse = new CustomerResponse(
+                sampleCustomerForCustomerControllerTest.getId(),
+                sampleCustomerForCustomerControllerTest.getEmail(),
+                sampleCustomerForCustomerControllerTest.getSalary()
+        );
 
         mockMvc.perform(post("/customer")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(sampleCustomerForCustomerControllerTest)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is((Long) expectedResponse.id())))
+                .andExpect(jsonPath("$.id", is(expectedResponse.id().intValue())))
                 .andExpect(jsonPath("$.email", is(expectedResponse.email())))
-                .andExpect(jsonPath("$.salary", is(expectedResponse.salary())));
+                .andExpect(jsonPath("$.salary", is(expectedResponse.salary()))); // burada .doubleValue() yok
 
         verify(customerService).save(any());
     }
+
+
 }
